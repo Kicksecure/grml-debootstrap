@@ -356,8 +356,13 @@ kernel() {
      if expr "$COMPONENTS" : '.*non-free' >/dev/null ; then
        KERNELPACKAGES="$KERNELPACKAGES firmware-linux"
      fi
-     # shellcheck disable=SC2086
-     DEBIAN_FRONTEND=$DEBIAN_FRONTEND $APTINSTALL $KERNELPACKAGES
+     if [ "$INITRD_GENERATOR" = 'dracut' ] ; then
+       # install dracut here already to avoid needlessly pulling initramfs-tools
+       # shellcheck disable=SC2086
+       DEBIAN_FRONTEND=$DEBIAN_FRONTEND $APTINSTALL $KERNELPACKAGES dracut
+     else
+       DEBIAN_FRONTEND=$DEBIAN_FRONTEND $APTINSTALL $KERNELPACKAGES
+     fi
   else
      echo "Warning: Could not find a kernel for your system. Your system won't be able to boot itself!"
   fi
